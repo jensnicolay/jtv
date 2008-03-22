@@ -1,0 +1,38 @@
+= How to build JTV from source =
+
+A JTV source project has the following subdirectories:
+ * {{{src}}} Java source files
+ * {{{bin}}} compiled class files
+ * {{{lib}}} jars needed on the classpath when building and running JTV
+
+
+== Ant ==
+
+JTV comes with an {{{ant}}} script that you can use to build JTV from source. First of all, make sure {{{ant}}} is installed on your system. On Ubuntu linux for example you can get the package by typing {{{sudo apt-get install ant}}}. You can also check [http://ant.apache.org/manual/install.html] to install {{{ant}}} on your system.
+
+Next, unzip jtv-src-<version>.zip to a directory. In that directory, type {{{ant}}} to build JTV from source. You should see something like:
+
+{{{
+Buildfile: build.xml
+
+default:
+    [mkdir] Created dir: /data/public/prog/jtv/bin
+    [javac] Compiling 26 source files to /data/public/prog/jtv/bin
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+
+BUILD SUCCESSFUL
+Total time: 5 seconds
+}}}
+
+The compiled java classes are now in the {{{bin}}} directory.
+
+
+== Eclipse ==
+
+The source release of JTV is configured as an Eclipse project which you can import into your Eclipse workbench. The project is already configured such that the jars in the {{{lib}}} directory are all on the build path and the compiled classes will go into the {{{bin}}} directory.
+
+
+== Other ==
+
+The accompanying scripts in JTV expect to find the compiled JTV classes in the {{{bin}}} subdirectory, so you should compile every source file in the {{{src}}} directory to {{{bin}}}. The jars needed to build and run JTV are in the {{{lib}}} directory, so they should be on the classpath when building.

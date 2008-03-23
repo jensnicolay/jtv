@@ -1,0 +1,17 @@
+= Getting started with JTV =
+
+== Backend ==
+ # Check if the prerequisits are met: JtvBackendPrerequisites
+ # Download a JTV source release, unzip it to a directory
+ # BuildJtvFromSource
+ # edit the Spring configuration: BackendSpringConfiguration
+ # start the backend by invoking {{{tvBackend.sh}}}
+
+Then...
+ * watch live television, with VLC for example: {{{vlc http://<tvservername>:2000/watch?tunerNumber=0}}}
+ * record a program, type {{{schedulerecording 3 20:40 22:30 /data/tv/nameOfRecording.mpg}}} where you started the backend (record a show on channel 3 from 20h40 to 22h30 and save it as a file with the given name)
+ * watch a recorded show, continuing the same example navigate to {{{data/tv}}} and open the file {{{nameOfRecording.mpg}}} to watch it.
+
+You can watch a tv programme while recording it. This allows you to pause, skip and rewind "live" TV. 
+
+JTV doesn't have a dedicated media player. Use {{{mplayer}}} or {{{vlc}}} for example to watch live streams or recorded files.

@@ -1,0 +1,177 @@
+= Configure JTV backend using Spring =
+
+JTV comes with a Spring configuration file, named {{{tvBackend.xml}}}, which can be used to configure a JTV backend.
+
+
+== tvBackend.sh ==
+
+This shell script invokes the main method of the {{{SpringTvBackend}}} class.
+
+
+== org.jtv.backend.SpringTvBackend ==
+
+The {{{main}}} method of this class is invoked by the {{{tvBackend.sh}}} script. Its main task is creating a Spring application context. It performs the following functions:
+
+ * Use the bean with id {{{masterController}}} as the master tv controller, this bean must implement the {{{TvController}}} interface.
+ * Register every bean that implements {{{TvControllerObserver}}} with the master controller as observer.
+ * It wraps a {{{TvConsoleController}}} around the master controller, so interaction with the master controller is possible through the console.
+ * Use the bean with id {{{tvServer}}} as the tv server and start it.
+
+
+== tvBackend.xml ==
+
+The actual Spring configuration file to create and configure a JTV backend. Adapt this file to customize your setup.
+
+The configuration file is divided into three sections.
+
+=== Master Controller ===
+This section configures the master tv controller that will be used. The master controller is the unique {{{TvController}}} instance that controls the tv tuners, keeps a reference to recording information and is passed to a tv server so remote viewing is possible.
+
+First, create a list of tv channels. {{{TvChannels}}} is a list of {{{TvChannel}}}. A {{{TvChannel}}} takes a number, a name and a frequency (in that specific order).
+
+{{{
+	<bean id="tvChannels" class="org.jtv.common.TvChannels">
+		<constructor-arg>
+			<list>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="1"/>
+					<constructor-arg value="een"/>
+					<constructor-arg value="203250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="2"/>
+					<constructor-arg value="Canvas/Ketnet"/>
+					<constructor-arg value="217250"/>
+				</bean>
+                                ...
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="11"/>
+					<constructor-arg value="BBC2"/>
+					<constructor-arg value="231100"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+}}}
+
+Each channel number should be unique. Channel numbers range from 0 to {{{Integer.MAX_VALUE}}}. Channel numbers need not be declared in order, nor should each number follow another number. When working with {{{IvtvTvTuner}}}, the frequency is expressed in Hz, so a frequency of {{{203250}}} is equal to 203.250 MHz, {{{231100}}} is equal to 231.100 MHz, and so on.
+
+Next, declare the tuners.
+
+{{{
+	<bean id="tuner0" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video0"/>
+	</bean>
+
+	<bean id="tuner1" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video1"/>
+	</bean>
+}}}
+
+In this example, two Ivtv tuners are declared. To find out how many tuners are available, execute the following command: {{{ls /dev/video?}}}. The output should be similar to
+
+{{{
+/dev/video0  /dev/video1
+}}}
+
+These are exactly the two devices passed to the tuners declared in the configuration. Only use the video devices with he lowest numbers that are contiguous.
+
+The next part configures a data source to access the embedded database in JTV.
+
+{{{
+	<bean id="dataSource" class="org.apache.derby.jdbc.EmbeddedDataSource">
+		<property name="databaseName" value="TvDb;create=true"/>
+	</bean>
+}}}
+
+The Apache Derby database is used for this purpose. The database name is {{{TvDb}}} and it is created if it does not yet exists.
+
+The data source is used to configure a {{{TvRecordingInfo}}} object which is used to keep track of recording information.
+
+{{{
+	<bean id="tvRecordingInfo" class="org.jtv.backend.DbTvRecordingInfo">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+}}}
+
+Now that we have tv channels, one or more tuners and an object to hold recording information, we pass them to a master controller.
+
+{{{
+	<bean id="masterController" class="org.jtv.backend.MasterController" destroy-method="close">
+		<constructor-arg>
+			<list>
+				<ref bean="tuner0"/>
+				<ref bean="tuner1"/>
+			</list>
+		</constructor-arg>
+		<constructor-arg ref="tvChannels"/>
+		<constructor-arg ref="tvRecordingInfo"/>
+	</bean>
+}}}
+
+As you can see from the configuration, the {{{MasterController}}} uses tuners, tv channels and the recording info objects to perform its tasks. {{{SpringTvBackend}}} expects there is a bean with id {{{masterController}}} that implements the {{{TvController}}} interface.
+
+Immediately after, we create a {{{TvControllerObserver}}} that will observe the master controller and print information to the console. The prefix used to display this information is {{{"MASTER"}}}.
+
+{{{
+	<bean id="consoleTvControllerObserver" class="org.jtv.common.ConsoleTvControllerObserver">
+		<constructor-arg value="MASTER"/>
+	</bean>
+}}}
+
+Remember, {{{SpringTvBackend}}} will pick up every object that implements {{{TvControllerObserver}}} (which is the case for {{{ConsoleTvControllerObserver}}}) and register it with the master controller, so we don't need to explicitly do this in the configuration.
+
+This concludes the part to configure the master controller. We created the different parts that the master controller needs, created the actual master controller and declared a console observer for it.
+
+=== JMX ===
+The remoting for JTV is implemented using JMX, the standard for Java management and monitoring. Note that providing the tv stream over the network is not part of the JMX configuration, but is done in the tv server section.
+
+JMX configuration is optional. If you will not be using remote tv controllers, or there is no need to monitor JTV remotely, then the JMX setup is not needed.
+
+"Remoting" is actually a bad choice of words, since you can also monitor and manage JTV locally (on the same machine). "Remotely" thus means "not in the JTV application itself" in this context, even if the program runs on the same machine.
+
+To start of, we will declare a JMX observer, so that JMX notifications can be used to observe master controller events. 
+
+{{{
+	<bean id="jmxObserver" class="org.jtv.backend.SpringJmxTvControllerObserver"/>
+}}}
+
+We use JMX facilities provided by Spring to implement JMX, hence {{{SpringJmxTvControllerObserver}}}. Again, this observer will be picked up by {{{SpringTvBackend}}} so we don't need to actively register it with the master tv controller in the configuration.
+
+Next, we define an assembler. An assembler determines which information is exposed by JMX to the outside world. By using {{{InterfaceBasedMBeanInfoAssembler}}} from Spring, the exposed information is determined by looking at the implemented interface(s) of objects.
+
+{{{
+	<bean id="assembler" class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler"/>
+}}}
+
+The assembler is passed to the exporter. 
+
+{{{
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="assembler" ref="assembler"/>
+    <property name="beans">
+      <map>
+        <entry key="tv:type=controller,name=master" value-ref="masterController"/>
+        <entry key="tv:type=controllerObserver,name=jmxObserver" value-ref="jmxObserver"/>
+      </map>
+    </property>
+	</bean>
+}}}
+
+The exporter actually takes care of exposing our beans as MBeans and registers them with the platform MBean server, which makes them accessible through JMX. We expose two beans: the master controller itself and its JMX observer. 
+
+In the third and final part we will configure the tv server.
+
+=== Tv Server ===
+The tv server makes the tv signal (as a stream) available over the network.
+
+{{{
+	<bean id="tvServer" class="org.jtv.backend.TvServer" destroy-method="close">
+		<constructor-arg ref="masterController"/>
+		<constructor-arg value="2000"/>
+	</bean>
+}}}
+
+{{{TvServer}}} takes a master controller as argument, together with a port number. The master controller manages channel, tuner and recording information and provides streams from tuners to the server. The tv server listens on a specific port for connections, port {{{2000}}} in the default configuration.
+
+{{{SpringTvBackend}}} will look for a bean named {{{tvServer}}} of type {{{TvServer}}} and start it.

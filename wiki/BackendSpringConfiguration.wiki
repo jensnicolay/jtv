@@ -22,7 +22,7 @@ The {{{main}}} method of this class is invoked by the {{{tvBackend.sh}}} script.
 
 The actual Spring configuration file to create and configure a JTV backend. Adapt this file to customize your setup.
 
-The configuration file is divided into three sections.
+The configuration file is divided into three sections: master controller, JMX and tv server.
 
 === Master Controller ===
 This section configures the master tv controller that will be used. The master controller is the unique {{{TvController}}} instance that controls the tv tuners, keeps a reference to recording information and is passed to a tv server so remote viewing is possible.

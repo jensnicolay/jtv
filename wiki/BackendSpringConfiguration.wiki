@@ -8,7 +8,7 @@ JTV comes with a Spring configuration file, named {{{tvBackend.xml}}}, which can
 This shell script invokes the main method of the {{{SpringTvBackend}}} class.
 
 
-== !org.jtv.backend.SpringTvBackend ==
+== org.jtv.backend.!SpringTvBackend ==
 
 The {{{main}}} method of this class is invoked by the {{{tvBackend.sh}}} script. Its main task is creating a Spring application context. It performs the following functions:
 

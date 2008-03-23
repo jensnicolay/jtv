@@ -2,7 +2,7 @@
 
 == Backend ==
  # Check if the prerequisits are met: JtvBackendPrerequisites
- # Download a JTV source release, unzip it to a directory
+ # Download the latest JTV source release, unzip it to a directory
  # BuildJtvFromSource
  # edit the Spring configuration: BackendSpringConfiguration
  # start the backend by invoking {{{tvBackend.sh}}}

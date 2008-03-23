@@ -1,0 +1,79 @@
+= Quickly configure JTV backend using Spring =
+
+JTV comes with a Spring configuration file, named {{{tvBackend.xml}}}, which can be used to configure a JTV backend. Without going into details, we explain the changes you need to make to this file to get you up and running as quickly as possible. For a more detailed explanation of the Spring configuration file, see BackendSpringConfiguration.
+
+First step: change the tv channels configuration.
+
+{{{
+	<bean id="tvChannels" class="org.jtv.common.TvChannels">
+		<constructor-arg>
+			<list>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="1"/>
+					<constructor-arg value="een"/>
+					<constructor-arg value="203250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="2"/>
+					<constructor-arg value="Canvas/Ketnet"/>
+					<constructor-arg value="217250"/>
+				</bean>
+                                ...
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="11"/>
+					<constructor-arg value="BBC2"/>
+					<constructor-arg value="231100"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+}}}
+
+Each channel number should be unique. Channel numbers need not be declared in order, nor should each number follow another number. The frequency is expressed in Hz, so a frequency of {{{203250}}} is equal to 203.250 MHz, {{{231100}}} is equal to 231.100 MHz, and so on. If you are using cable television, you can probably find the frequencies of tv channels on the website of your cable television operator. 
+
+Second step: find out how many tuners you have and declare them.
+
+Execute {{{ls /dev/video?}}}. Only use the video devices with he lowest numbers that are contiguous. Only declare the tuners you actually have. So, if the output is
+
+{{{
+/dev/video0  /dev/video1
+}}}
+
+you can declare two tuners:
+
+{{{
+	<bean id="tuner0" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video0"/>
+	</bean>
+
+	<bean id="tuner1" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video1"/>
+	</bean>
+}}}
+
+Third step: change the number of tuners that are passed to the master controller.
+
+{{{
+	<bean id="masterController" class="org.jtv.backend.MasterController" destroy-method="close">
+		<constructor-arg>
+			<list>
+				<ref bean="tuner0"/>
+				<ref bean="tuner1"/>
+			</list>
+		</constructor-arg>
+		<constructor-arg ref="tvChannels"/>
+		<constructor-arg ref="tvRecordingInfo"/>
+	</bean>
+}}}
+
+This part should only reference the tuners you have actually configured: 
+
+{{{
+			<list>
+				<ref bean="tuner0"/>
+				<ref bean="tuner1"/>
+			</list>
+}}}
+
+
+That's it.

@@ -1,6 +1,6 @@
 = Quickly configure JTV backend using Spring =
 
-JTV comes with a Spring configuration file, named {{{tvBackend.xml}}}, which can be used to configure a JTV backend. Without going into details, we explain the changes you need to make to this file to get you up and running as quickly as possible. For a more detailed explanation of the Spring configuration file, see BackendSpringConfiguration.
+JTV comes with a Spring configuration file, named {{{tvBackend.xml}}}, which can be used to configure a JTV backend. Without going into details, we explain the changes you need to make to this file to get you up and running as quickly as possible if you are using IVTV drivers on Linux. For a more detailed explanation of the Spring configuration file, see BackendSpringConfiguration.
 
 First step: change the tv channels configuration.
 

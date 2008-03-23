@@ -68,7 +68,7 @@ Next, declare the tuners.
 	</bean>
 }}}
 
-In this example, two Ivtv tuners are declared. To find out how many tuners are available, execute the following command: {{{ls /dev/video?}}}. The output should be similar to
+A tuner should implement the {{{TvTuner}}} interface. In this example, two IVTV tuners are declared. To find out how many tuners are available, execute the following command: {{{ls /dev/video?}}}. The output should be similar to
 
 {{{
 /dev/video0  /dev/video1

@@ -11,7 +11,7 @@ Then...
  * watch live television, with VLC for example: {{{vlc http://<tvservername>:2000/watch?tunerNumber=0}}}
  * change the channel, type {{{changeChannel 0 7}}} where you started the backend (change to channel 7 for tuner 0)
  * record a program, type {{{schedulerecording 3 20:40 22:30 /data/tv/nameOfRecording.mpg}}} where you started the backend (record a show on channel 3 from 20h40 to 22h30 and save it as a file with the given name)
- * watch a recorded show, continuing the same example navigate to {{{data/tv}}} and open the file {{{nameOfRecording.mpg}}} to watch it.
+ * watch a recorded show, continuing the same example navigate to {{{/data/tv}}} and open the file {{{nameOfRecording.mpg}}} to watch it.
 
 You can watch a tv programme while recording it. This allows you to pause, skip and rewind "live" TV. 
 

@@ -30,7 +30,7 @@ The compiled java classes are now in the {{{bin}}} directory.
 
 == Eclipse ==
 
-The source release of JTV is configured as an Eclipse project which you can import into your Eclipse workbench. The project is already configured such that the jars in the {{{lib}}} directory are all on the build path and the compiled classes will go into the {{{bin}}} directory.
+The source release of JTV is configured as an Eclipse project which you can import into your Eclipse workbench. The project is already configured so that the jars in the {{{lib}}} directory are all on the build path and the compiled classes will go into the {{{bin}}} directory.
 
 
 == Other ==

@@ -1,7 +1,7 @@
 = Getting started with JTV =
 
 == Backend ==
- # Check if the prerequisits are met: JtvBackendPrerequisites
+ # Check if the prerequisites are met: JtvBackendPrerequisites
  # Download the latest JTV source release, unzip it to a directory
  # BuildJtvFromSource
  # edit the Spring configuration: QuickBackendSpringConfiguration

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     16-mrt-08 10:41:00                                                        
+
+     project    
+     description
+                   
+     Administrator                                                                
+     ====================================================================== -->
+<project name="project" default="default">
+	<target name="default">
+		<delete dir="bin"/>
+		<mkdir dir="bin"/>
+		<javac srcdir="src" destdir="bin">
+				<classpath>
+		      <fileset dir="lib">
+		        <include name="**/*.jar"/>
+		      </fileset>
+				</classpath>
+		</javac>
+	</target>
+</project>
+

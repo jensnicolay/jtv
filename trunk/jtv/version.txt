@@ -1,0 +1,10 @@
+== 1.2.0 ==
+ * getTime() on TvController, used when displaying time
+ * initTuner() increased volume to 65536
+
+== 1.1.0 ==
+ * Spring configuration: SpringTvBackend, tvBackend.xml
+ * Ant build.xml: generic lib/*.jar classpath
+
+== 1.0.0 ==
+ * Initial release

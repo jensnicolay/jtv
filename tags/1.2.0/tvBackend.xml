@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<!-- MASTER CONTROLLER -->
+	<bean id="tvChannels" class="org.jtv.common.TvChannels">
+		<constructor-arg>
+			<list>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="1"/>
+					<constructor-arg value="een"/>
+					<constructor-arg value="203250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="2"/>
+					<constructor-arg value="Canvas/Ketnet"/>
+					<constructor-arg value="217250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="3"/>
+					<constructor-arg value="VTM"/>
+					<constructor-arg value="189250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="4"/>
+					<constructor-arg value="Ned1"/>
+					<constructor-arg value="140250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="5"/>
+					<constructor-arg value="Ned2"/>
+					<constructor-arg value="147250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="6"/>
+					<constructor-arg value="Ned3"/>
+					<constructor-arg value="182250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="7"/>
+					<constructor-arg value="2BE"/>
+					<constructor-arg value="238250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="8"/>
+					<constructor-arg value="VT4"/>
+					<constructor-arg value="273250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="9"/>
+					<constructor-arg value="VijfTV"/>
+					<constructor-arg value="280250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="10"/>
+					<constructor-arg value="BBC1"/>
+					<constructor-arg value="399250"/>
+				</bean>
+				<bean class="org.jtv.common.TvChannel">
+					<constructor-arg value="11"/>
+					<constructor-arg value="BBC2"/>
+					<constructor-arg value="231100"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="tuner0" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video0"/>
+	</bean>
+
+	<bean id="tuner1" class="org.jtv.backend.IvtvTvTuner">
+		<constructor-arg value="/dev/video1"/>
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.derby.jdbc.EmbeddedDataSource">
+		<property name="databaseName" value="TvDb;create=true"/>
+	</bean>
+	
+	<bean id="tvRecordingInfo" class="org.jtv.backend.DbTvRecordingInfo">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+	
+	<bean id="masterController" class="org.jtv.backend.MasterController" destroy-method="close">
+		<constructor-arg>
+			<list>
+				<ref bean="tuner0"/>
+				<ref bean="tuner1"/>
+			</list>
+		</constructor-arg>
+		<constructor-arg ref="tvChannels"/>
+		<constructor-arg ref="tvRecordingInfo"/>
+	</bean>
+	
+	<bean id="consoleTvControllerObserver" class="org.jtv.common.ConsoleTvControllerObserver">
+		<constructor-arg value="MASTER"/>
+	</bean>
+	
+	<!-- JMX -->
+	<bean id="jmxObserver" class="org.jtv.backend.SpringJmxTvControllerObserver"/>
+	
+	<bean id="assembler" class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler"/>
+	
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="assembler" ref="assembler"/>
+    <property name="beans">
+      <map>
+        <entry key="tv:type=controller,name=master" value-ref="masterController"/>
+        <entry key="tv:type=controllerObserver,name=jmxObserver" value-ref="jmxObserver"/>
+      </map>
+    </property>
+	</bean>
+	
+	<!-- TV SERVER -->
+	<bean id="tvServer" class="org.jtv.backend.TvServer" destroy-method="close">
+		<constructor-arg ref="masterController"/>
+		<constructor-arg value="2000"/>
+	</bean>
+
+</beans>
